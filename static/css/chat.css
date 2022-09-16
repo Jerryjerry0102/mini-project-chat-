@@ -23,7 +23,7 @@
 
 /* header */
 .header {
-  border: 1px solid #ccc;
+  /* border: 1px solid #ccc; */
   height: 65px;
   background-color: var(--main-color);
   display: flex;
@@ -44,11 +44,11 @@ img {
 .active div:first-child {
   font-size: 20px;
 }
-.active div:last-child {
+/* .active div:last-child {
   font-size: 10px;
   position: relative;
   bottom: 2px;
-}
+} */
 .header-icons {
   margin-left: auto;
   /* flex-grow: 1;
@@ -64,7 +64,7 @@ img {
 .chat-main {
   padding: 20px 30px;
   border: 1px solid #ccc;
-  height: 550px;
+  height: 570px;
   overflow-y: auto;
 }
 /* notice-chats */
@@ -87,24 +87,24 @@ img {
   width: 57%;
 }
 .chats-name {
-  color: #6e665f;
+  /* color: #6e665f; */
   padding: 0px 0px 3px 3px;
   font-size: 14px;
 }
 .chats-msg .text {
   border-radius: 10px;
-  color: #646464;
   font-size: 14px;
   padding: 7px 11px;
 }
 .received-chats-msg .text {
   background-color: #efefef;
-  color: #777;
+  color: rgb(94, 94, 94);
 }
 .time {
   display: block;
   font-size: 12px;
   margin: 5px 3px 0 3px;
+  color: rgb(94, 94, 94);
 }
 /* outgoing-chats */
 .outgoing-chats {
@@ -155,6 +155,7 @@ img {
   margin-left: auto;
   width: 60%;
   background-color: #fff;
+  border: 1px solid #ccc;
   border-radius: 20px;
   margin-left: auto;
 }

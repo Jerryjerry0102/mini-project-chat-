@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <!-- css file -->
+    <link rel="stylesheet" href="../static/css/chat.css" />
+    <!-- jquery -->
+    <script
+      src="https://code.jquery.com/jquery-3.6.1.min.js"
+      integrity="sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ="
+      crossorigin="anonymous"
+    ></script>
+    <!-- bootstrap cdn -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx"
+      crossorigin="anonymous"
+    />
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-A3rJD856KowSb7dwlZdYEkO39Gagi7vIsF0jrRAoQmDKKtQBHUuLZ9AsSv4jD4Xa"
+      crossorigin="anonymous"
+    ></script>
+    <!-- fontawesome cdn -->
+    <script
+      src="https://kit.fontawesome.com/acfe1c41fb.js"
+      crossorigin="anonymous"
+    ></script>
+    <!-- socket cdn -->
+    <script
+      src="https://cdn.socket.io/4.5.0/socket.io.min.js"
+      integrity="sha384-7EyYLQZgWBi67fBtVxw60/OWl1kjsfrPFcaU0pp0nAh+i8FD068QogUvg85Ewy1k"
+      crossorigin="anonymous"
+    ></script>
+  </head>
+  <body>
+    <!-- 1. nickname set & chat open page -->
+    <div id="startPage">
+      <h1 style="margin-bottom: 25px; color: #007bff">Jerrychat</h1>
+      <div class="entry">
+        <input
+          style="width: 300px; margin: 20px; text-align: center"
+          class="form-control"
+          type="text"
+          id="nickname"
+          name="name"
+        />
+        <button
+          class="btn btn-outline-primary"
+          type="button"
+          id="entryBtn"
+          onclick="entry();"
+        >
+          입장
+        </button>
+      </div>
+    </div>
+    <!-- 2. chat page -->
+    <div class="container d-none" id="chatPage">
+      <!-- 2.1 chat-header -->
+      <div class="header">
+        <div class="header-img">
+          <img src="../static/img/odung.jpg" />
+        </div>
+        <div class="active">
+          <div>Jerry</div>
+          <div>지금 활동중</div>
+        </div>
+        <div class="header-icons">
+          <i class="fa fa-phone"></i>
+          <i class="fa fa-video-camera"></i>
+          <i class="fa fa-info-circle"></i>
+        </div>
+      </div>
+      <!-- 2.2 chat-main -->
+      <div class="chat-main">
+        <!-- chat-notice -->
+        <!-- <div class="notice-chats">박재희님이 입장했습니다</div> -->
+        <!-- received chats -->
+        <!-- <div class="chats received-chats">
+          <div class="chats-img received-chats-img">
+            <img src="../static/img/odung.jpg" />
+          </div>
+          <div class="chats-msg received-chats-msg">
+            <div class="chats-name">박재희</div>
+            <div class="text">Hi! This is message from Tom Hi! This is message from Tom</div>
+            <span class="time">11:01 PM | September 15</span>
+          </div>
+        </div> -->
+        <!-- outgoing chats -->
+        <!-- <div class="chats outgoing-chats">
+          <div class="chats-msg outgoing-chats-msg">
+            <div>Hi! This is message from me Hi! This is message from me</div>
+            <span class="time">11:01 PM | September 15</span>
+          </div>
+          <div class="chats-img outgoing-chats-img">
+            <img src="../static/img/odung.jpg" />
+          </div>
+        </div> -->
+        <!--  -->
+      </div>
+      <!-- 2.3 chat-bottom -->
+      <div class="chat-bottom">
+        <div class="bottom-icons">
+          <i class="fa fa-plus-circle"></i>
+          <!-- <i class="fa fa-camera"></i> -->
+          <!-- <i class="fa fa-microphone"></i> -->
+          <i class="fa fa-smile-o"></i>
+        </div>
+        <select class="form-select" id="dm">
+          <option value="all">모두에게</option>
+        </select>
+        <div class="chat-input">
+          <input type="text" class="chatMsg" placeholder="write message..." />
+          <i onclick="sendMsg();" class="fa fa-paper-plane"></i>
+        </div>
+      </div>
+    </div>
+    <script>
+      // 서버의 소켓과 연결하기
+      let socket = io.connect();
+      function entry() {
+        let nickname = $("#nickname").val();
+        console.log(nickname);
+        socket.emit("setNickname", nickname);
+      }
+
+      socket.on("err", (errMsg) => {
+        alert(errMsg);
+      });
+
+      socket.on("entrySuccess", () => {
+        $("#chatPage").removeClass("d-none");
+        $("#nickname, #entryBtn").attr("disabled", true);
+        $("#startPage").addClass("d-none");
+        socketEvent();
+      });
+
+      function sendMsg() {
+        let chatMsg = $(".chatMsg").val();
+        if (chatMsg != "") {
+          let data = {
+            dm: $("#dm").val(),
+            chatMsg: chatMsg,
+          };
+          socket.emit("sendMsg", data);
+        }
+      }
+
+      function socketEvent() {
+        socket.on("chat-notice", (notice) => {
+          $(".chat-main").append(`<div class="notice-chats">${notice}</div>`);
+        });
+
+        socket.on("sendAll", (chatMsg, nickname, time, day, option) => {
+          let myMsg = $(".chatMsg").val();
+          let dmMsg = "";
+
+          if (option != "all") {
+            dmMsg = "(소근)";
+          }
+          if (myMsg == chatMsg) {
+            $(".chat-main").append(
+              `<div class="chats outgoing-chats">
+            <div class="chats-msg outgoing-chats-msg">
+              <div class="text">${chatMsg}</div>
+              <span class="time">${time} | ${day}</span>
+            </div>
+            <div class="chats-img outgoing-chats-img">
+              <img src="../static/img/odung.jpg" />
+            </div>
+            </div>`
+            );
+          } else {
+            $(".chat-main").append(
+              `<div class="chats received-chats">
+              <div class="chats-img received-chats-img">
+                <img src="../static/img/odung.jpg" />
+              </div>
+              <div class="chats-msg received-chats-msg">
+                <div class="chats-name">${nickname}${dmMsg}</div>
+                <div class="text">${chatMsg}</div>
+                <span class="time">${time} | ${day}</span>
+              </div>
+            </div>`
+            );
+          }
+          $(".chatMsg").val("");
+        });
+
+        socket.on("clientUpdate", (client) => {
+          let option = `<option value="all">모두에게</option>`;
+          for (let key in client) {
+            if (client[key] != $("#nickname").val()) {
+              option += `<option value="${key}">${client[key]}</option>`;
+            }
+          }
+          $("#dm").html(option);
+        });
+
+        // scroll 자동으로 내려가게하는 코드
+        const chatMain = $(".chat-main");
+        chatMain.scrollTop(chatMain[0].scrollHeight);
+      }
+    </script>
+  </body>
+</html>

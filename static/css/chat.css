@@ -13,6 +13,33 @@
   transform: translate(-50%, -50%);
   text-align: center;
 }
+/* input[type="file"] customizing */
+#startPage .fakeInput {
+  /* display: inline-block; */
+  height: 39px;
+  padding: 0 10px;
+  vertical-align: middle;
+  border: 1px solid #dddddd;
+  width: 196px;
+  color: #999999;
+  border-radius: 0.375rem;
+}
+#startPage label {
+  /* display: inline-block; */
+  padding: 10px 17px;
+  color: #fff;
+  vertical-align: middle;
+  background-color: lightgray;
+  cursor: pointer;
+  height: 39px;
+  /* margin-left: 10px; */
+  line-height: 21px;
+  border-radius: 0.375rem;
+}
+#startPage input[type="file"] {
+  position: absolute;
+  display: none;
+}
 .container {
   min-width: 500px;
   max-width: 500px !important;
@@ -38,12 +65,13 @@ img {
   width: 100%;
 }
 .active {
-  margin-left: 15px;
+  margin-left: 10px;
   color: #fff;
 }
 .active div:first-child {
   font-size: 20px;
 }
+/* 원래 ejs 파일에서 <div>3 hours ago....</div> */
 /* .active div:last-child {
   font-size: 10px;
   position: relative;
@@ -64,9 +92,25 @@ img {
 .chat-main {
   padding: 20px 30px;
   border: 1px solid #ccc;
-  height: 570px;
+  height: 580px;
+  /* 줄바꿈 속성: 글자단위 자름 */
+  word-break: break-all;
   overflow-y: auto;
 }
+/* chat-main scroll decoration */
+.chat-main::-webkit-scrollbar {
+  width: 10px;
+}
+/* .chat-main::-webkit-scrollbar-track {
+  border-radius: 4px;
+  background-color: #fff;
+} */
+.chat-main::-webkit-scrollbar-thumb {
+  border-radius: 4px;
+  border: none;
+  background-color: lightgrey;
+}
+
 /* notice-chats */
 .notice-chats {
   color: gray;
@@ -84,7 +128,7 @@ img {
 }
 .received-chats-msg {
   padding-left: 10px;
-  width: 57%;
+  max-width: 57%;
 }
 .chats-name {
   /* color: #6e665f; */
@@ -92,9 +136,11 @@ img {
   font-size: 14px;
 }
 .chats-msg .text {
+  display: inline-block;
   border-radius: 10px;
   font-size: 14px;
   padding: 7px 11px;
+  width: auto;
 }
 .received-chats-msg .text {
   background-color: #efefef;
@@ -111,7 +157,7 @@ img {
   margin: 26px 0px 20px 0px;
 }
 .outgoing-chats-msg {
-  width: 47%;
+  max-width: 50%;
   margin-left: auto;
   padding-right: 10px;
 }
@@ -141,7 +187,7 @@ img {
 .chat-bottom select {
   border-radius: 20px;
   width: 23%;
-  height: 35px;
+  height: 36px;
   font-size: 13px;
   color: #646464;
   line-height: 14px;
@@ -163,7 +209,7 @@ img {
   border: none;
   border-radius: 20px;
   width: 87%;
-  height: 35px;
+  height: 34px;
   /* outline-color: var(--main-color); */
   outline: none;
   text-indent: 12px;

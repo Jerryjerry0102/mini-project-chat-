@@ -72,7 +72,7 @@ io.on("connection", function (socket) {
       console.log(client_list[socket.id]);
       console.log(myId);
       io.emit("chat-notice", `${nickname}님이 입장했습니다.`);
-      socket.emit("entrySuccess", "입장 성공");
+      socket.emit("entrySuccess", client_list[socket.id], socket.id);
 
       io.emit("clientUpdate", client_list);
     }
@@ -80,35 +80,18 @@ io.on("connection", function (socket) {
 
   socket.on("sendMsg", (data) => {
     console.log(socket.id);
+    let chatData = {
+      userId: socket.id,
+      msg: data.chatMsg,
+      nickname: client_list[socket.id],
+      time: moment(new Date()).format("h:mm A"),
+      date: moment(new Date()).format("MMMM D"),
+    };
     if (data.dm == "all") {
-      io.emit(
-        "sendAll",
-        socket.id,
-        data.chatMsg,
-        client_list[socket.id],
-        moment(new Date()).format("h:mm A"),
-        moment(new Date()).format("MMMM D"),
-        "all"
-      );
+      io.emit("sendAll", chatData, "all");
     } else {
-      io.to(data.dm).emit(
-        "sendAll",
-        socket.id,
-        data.chatMsg,
-        client_list[socket.id],
-        moment(new Date()).format("h:mm A"),
-        moment(new Date()).format("MMMM D"),
-        "dm"
-      );
-      socket.emit(
-        "sendAll",
-        socket.id,
-        data.chatMsg,
-        client_list[socket.id],
-        moment(new Date()).format("h:mm A"),
-        moment(new Date()).format("MMMM D"),
-        "dm"
-      );
+      io.to(data.dm).emit("sendAll", chatData, "dm");
+      socket.emit("sendAll", chatData, "dm");
     }
     // io.emit("sendAll", chatMsg, client_list[socket.id]);
   });

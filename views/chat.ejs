@@ -49,6 +49,12 @@
     <div id="startPage">
       <h1 style="margin-bottom: 25px; color: #007bff">Jerrychat</h1>
       <div class="entry">
+        <input
+          class="fakeInput"
+          value="프로필사진 선택"
+          placeholder="프로필사진 선택"
+        />
+        <label for="photo">파일찾기</label>
         <input type="file" name="photo" id="photo" />
         <input
           style="width: 300px; margin: 20px; text-align: center"
@@ -71,13 +77,12 @@
     <div class="container d-none" id="chatPage">
       <!-- 2.1 chat-header -->
       <div class="header">
-        <div class="header-img">
+        <!-- <div class="header-img">
           <img src="/uploads/odung.jpg" />
         </div>
         <div class="active">
           <div class="title">Jerry</div>
-          <!-- <div>지금 활동중</div> -->
-        </div>
+        </div> -->
         <div class="header-icons">
           <i class="fa fa-phone"></i>
           <i class="fa fa-video-camera"></i>
@@ -129,12 +134,19 @@
       </div>
     </div>
     <script>
+      // input[type="file"] customizing
+      $("#photo").on("change", function () {
+        let fileName = $("#photo").val();
+        $(".fakeInput").val(fileName);
+      });
       // 서버의 소켓과 연결하기
       let socket = io.connect();
       function entry() {
         let nickname = $("#nickname").val();
         console.log(nickname);
-        socket.emit("setNickname", nickname);
+        if (nickname != "") {
+          socket.emit("setNickname", nickname);
+        }
 
         // file upload
         const formData = new FormData();
@@ -157,10 +169,18 @@
         alert(errMsg);
       });
 
-      socket.on("entrySuccess", () => {
+      socket.on("entrySuccess", (nickname, myId) => {
         $("#chatPage").removeClass("d-none");
         $("#nickname, #entryBtn").attr("disabled", true);
         $("#startPage").addClass("d-none");
+        $(".header").prepend(
+          `<div class="header-img">
+          <img src="/uploads/${myId}.jpg" />
+        </div>
+        <div class="active">
+          <div class="title">${nickname}</div>
+        </div>`
+        );
         socketEvent();
       });
 
@@ -180,23 +200,23 @@
           $(".chat-main").append(`<div class="notice-chats">${notice}</div>`);
         });
 
-        socket.on("sendAll", (myId, chatMsg, nickname, time, day, option) => {
+        socket.on("sendAll", (chatData, option) => {
           let myMsg = $(".chatMsg").val();
           let dmMsg = "";
-          console.log(myId);
+          console.log("chatData.userId");
 
           if (option != "all") {
-            dmMsg = "(소근)";
+            dmMsg = "(소곤)";
           }
-          if (myMsg == chatMsg) {
+          if (myMsg == chatData.msg) {
             $(".chat-main").append(
               `<div class="chats outgoing-chats">
             <div class="chats-msg outgoing-chats-msg">
-              <div class="text">${chatMsg}</div>
-              <span class="time">${time} | ${day}</span>
+              <div class="text">${chatData.msg}</div>
+              <span class="time">${chatData.time}</span>
             </div>
             <div class="chats-img outgoing-chats-img">
-              <img src="/uploads/${myId}.jpg" />
+              <img src="/uploads/${chatData.userId}.jpg" />
             </div>
             </div>`
             );
@@ -204,12 +224,12 @@
             $(".chat-main").append(
               `<div class="chats received-chats">
               <div class="chats-img received-chats-img">
-                <img src="/uploads/${myId}.jpg" />
+                <img src="/uploads/${chatData.userId}.jpg" />
               </div>
               <div class="chats-msg received-chats-msg">
-                <div class="chats-name">${nickname}${dmMsg}</div>
-                <div class="text">${chatMsg}</div>
-                <span class="time">${time} | ${day}</span>
+                <div class="chats-name">${chatData.nickname}<span style="color: var(--main-color)">${dmMsg}</span></div>
+                <div class="text">${chatData.msg}</div>
+                <span class="time">${chatData.time}</span>
               </div>
             </div>`
             );
@@ -221,11 +241,13 @@
           chatMain.scrollTop(chatMain[0].scrollHeight);
         });
 
-        socket.on("clientUpdate", (client) => {
+        socket.on("clientUpdate", (client_list) => {
           let option = `<option value="all">모두에게</option>`;
-          for (let key in client) {
-            if (client[key] != $("#nickname").val()) {
-              option += `<option value="${key}">${client[key]}</option>`;
+          for (let key in client_list) {
+            console.log("key:", key);
+            console.log("nickname:", client_list[key]);
+            if (client_list[key] != $("#nickname").val()) {
+              option += `<option value="${key}">${client_list[key]}</option>`;
             }
           }
           $("#dm").html(option);
